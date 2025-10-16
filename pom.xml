@@ -17,9 +17,9 @@
 	<packaging>jar</packaging>
 	<groupId>com.huntercodexs</groupId>
 
-	<artifactId>huntercodexs-handler-exception</artifactId>
-	<name>huntercodexs-handler-exception</name>
-	<description>huntercodexs-handler-exception</description>
+	<artifactId>huntercodexs-spring-handler-exception</artifactId>
+	<name>huntercodexs-spring-handler-exception</name>
+	<description>huntercodexs-spring-handler-exception</description>
 
 	<properties>
 		<java.version>21</java.version>
