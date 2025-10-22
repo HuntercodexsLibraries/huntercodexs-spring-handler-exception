@@ -2,6 +2,9 @@ package com.huntercodexs.handler.exception.resource;
 
 import com.huntercodexs.handler.exception.CustomResponseException;
 import com.huntercodexs.handler.exception.HttpCustomExceptionHandler;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -517,6 +520,31 @@ class HttpCustomExceptionHandlerTest {
         assertNotNull(body);
         assertEquals(String.valueOf(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()), body.getCode());
         assertEquals("Media type 'application/xml' is not supported", body.getMessage());
+        assertNotNull(body.getTracker());
+        assertNull(body.getErrors());
+    }
+
+    @Test
+    void shouldHandleCallNotPermittedExceptionCorrectly() {
+        CircuitBreaker circuitBreaker = mock(CircuitBreaker.class);
+        CircuitBreakerConfig circuitBreakerConfig = mock(CircuitBreakerConfig.class);
+
+        when(circuitBreaker.getName()).thenReturn("testCircuitBreaker");
+        when(circuitBreaker.getCircuitBreakerConfig()).thenReturn(circuitBreakerConfig);
+        when(circuitBreakerConfig.isWritableStackTraceEnabled()).thenReturn(true);
+
+        CallNotPermittedException ex =
+                CallNotPermittedException.createCallNotPermittedException(circuitBreaker);
+
+        ResponseEntity<CustomResponseException> response =
+                httpCustomExceptionHandler.handleCallNotPermittedException(ex);
+
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+
+        CustomResponseException body = response.getBody();
+        assertNotNull(body);
+        assertEquals(String.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), body.getCode());
+        assertEquals("Service is not available 'CircuitBreaker 'testCircuitBreaker' is null and does not permit further calls'", body.getMessage());
         assertNotNull(body.getTracker());
         assertNull(body.getErrors());
     }

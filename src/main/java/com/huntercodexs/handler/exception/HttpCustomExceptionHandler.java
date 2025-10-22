@@ -1,5 +1,6 @@
 package com.huntercodexs.handler.exception;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.Generated;
 import org.slf4j.Logger;
@@ -129,6 +130,12 @@ public class HttpCustomExceptionHandler {
     public ResponseEntity<CustomResponseException> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
         String message = String.format("Media type '%s' is not supported", ex.getMessage());
         return buildErrorResponse(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE,  null, null);
+    }
+
+    @ExceptionHandler(CallNotPermittedException.class)
+    public ResponseEntity<CustomResponseException> handleCallNotPermittedException(CallNotPermittedException ex) {
+        String message = String.format("Service is not available '%s'", ex.getMessage());
+        return buildErrorResponse(message, HttpStatus.SERVICE_UNAVAILABLE,  null, null);
     }
 
     @ExceptionHandler(RestClientException.class)
